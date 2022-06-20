@@ -1,4 +1,4 @@
-// Written by Avinoam Nukrai - EX5 OS course Hebrew U 2022 spring
+// Written by Avinoam Nukrai 2022 spring
 
 // Imports
 #include <bits/stdc++.h>
