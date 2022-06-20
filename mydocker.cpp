@@ -1,4 +1,4 @@
-// Written by Avinoam Nukrai 2022 spring
+// Written by Avinoam Nukrai - 2022 spring
 
 // Imports
 #include <bits/stdc++.h>
@@ -33,7 +33,7 @@ using namespace std;
  */
 typedef struct childProcArgs {
     char** argv;
-    size_t progArgsNum; // args number of programCGROUP_PROCS_PATH
+    size_t prog_args_num; // args number of programCGROUP_PROCS_PATH
 } childProcArgs ;
 
 
@@ -86,7 +86,7 @@ int child_entry_point(void* arg){
     char* newRootDir = (char*)procArgs->argv[2];
     const string maxProcNum = procArgs->argv[3];
     char* pathToRun = (char*)procArgs->argv[4];
-    size_t argsNum = procArgs->progArgsNum;
+    size_t argsNum = procArgs->prog_args_num;
     // init the args array for the program we want to run inside the container
     char** argsForRun = (char**)malloc(sizeof(char*) * argsNum);
     argsForRun[0] = pathToRun;
@@ -134,6 +134,8 @@ void delete_all_files_folders(char* originalRoot) {
     for (int i = 0; i < NUM_OF_FOLDS; ++i) {
         remove(strcat(newRoot, paths_files[i])); // for files
         strcpy(newRoot, originalRoot);
+    }
+    for (int i = 0; i < NUM_OF_FOLDS; ++i) {
         rmdir(strcat(newRoot, paths_folders[i])); // for folders
         strcpy(newRoot, originalRoot);
     }
@@ -148,7 +150,9 @@ void delete_all_files_folders(char* originalRoot) {
  * @return int
  */
 int main(int argc, char* argv[]){
-    char* newRoot = (char*)argv[2];
+    char* new_root = (char*)argv[2];
+    char* root_for_umount = (char*)malloc(sizeof(char) * (strlen(new_root) + 1));
+    strcpy(root_for_umount, argv[2]);
     if (argc < 5){
         cerr << SYSTEM_ERROR(INVALID_ARGS_NUM)
         return EXIT_FAILURE;
@@ -159,14 +163,15 @@ int main(int argc, char* argv[]){
         cerr << SYSTEM_ERROR(ALLOC_FAILED)
         return EXIT_FAILURE;
     }
-    auto* childProArgs =(childProcArgs*) malloc(sizeof(childProcArgs));
-    childProArgs->argv = argv;
-    childProArgs->progArgsNum = argc - 3;
-    clone(child_entry_point,(char*)stack + STACK_SIZE,FLAGS, (void *)childProArgs);
+    auto* child_proc_args =(childProcArgs*) malloc(sizeof(childProcArgs));
+    child_proc_args->argv = argv;
+    child_proc_args->prog_args_num = argc - 3;
+    clone(child_entry_point,(char*)stack + STACK_SIZE,FLAGS, (void *)child_proc_args);
     wait(NULL);
-    umount(strcat(newRoot, "/proc"));
-    delete_all_files_folders(argv[2]);
-    free(childProArgs);
+    umount(strcat(root_for_umount, "/proc"));
+    delete_all_files_folders(new_root);
+    free(root_for_umount);
+    free(child_proc_args);
     free(stack);
     return 0;
 }
