@@ -1,5 +1,5 @@
 # My-Docker
-A Docker/Container which supports a limited number of processes in it
+A special Docker/Container
 
 Introduction:
 In this project I developed a container that run a (somewhat) isolated program inside it in a certain conditions, such as limiting the number of processes inside it. It helps me a lot to get a better understanding of how containers such as docker work under the hood, and what levels of isolation such containers can provide.
